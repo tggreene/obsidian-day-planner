@@ -1,4 +1,5 @@
-import type { MarkdownView, Workspace } from 'obsidian';
+import type { Workspace } from 'obsidian';
+import {MarkdownView} from 'obsidian';
 import { DAY_PLANNER_DEFAULT_CONTENT, MERMAID_REGEX } from './constants';
 import type DayPlannerFile from './file';
 import PlannerMermaid from './mermaid';
@@ -30,11 +31,13 @@ export default class PlannerMarkdown {
     async insertPlanner() {
         const filePath = this.file.todayPlannerFilePath();
         const fileContents = await (await this.file.getFileContents(filePath)).split('\n');
-        const view = this.workspace.activeLeaf.view as MarkdownView;
-        const currentLine = view.editor.getCursor().line;
-        const contents = await (await this.file.todayPlannerContents());
-        const insertResult = [...fileContents.slice(0, currentLine), ...contents.split('\n'), ...fileContents.slice(currentLine)];
-        this.file.updateFile(filePath, insertResult.join('\n'));
+        const view = app.workspace.getActiveViewOfType(MarkdownView) as MarkdownView;
+        if(view) {
+            const currentLine = view.editor.getCursor().line;
+            const contents = await (await this.file.todayPlannerContents());
+            const insertResult = [...fileContents.slice(0, currentLine), ...contents.split('\n'), ...fileContents.slice(currentLine)];
+            this.file.updateFile(filePath, insertResult.join('\n'));
+        }
     }
 
     async parseDayPlanner():Promise<PlanSummaryData> {
@@ -104,11 +107,7 @@ export default class PlannerMarkdown {
     }
 
     checkIsDayPlannerEditing(){
-        const activeLeaf = this.workspace.activeLeaf;
-        if(!activeLeaf){
-            return;
-        }
-        const viewState = activeLeaf.view.getState();
+        const viewState = app.workspace.getActiveViewOfType(MarkdownView).getState();
         if(viewState.file === this.file.todayPlannerFilePath()){
             this.dayPlannerLastEdit = new Date().getTime();
         }

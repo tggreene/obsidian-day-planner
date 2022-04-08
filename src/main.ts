@@ -4,6 +4,7 @@ import {
   TAbstractFile,
   Vault,
   WorkspaceLeaf,
+  MarkdownView
 } from 'obsidian';
 import type { Editor } from 'codemirror';
 import { DayPlannerSettingsTab } from './settings-tab';
@@ -139,7 +140,7 @@ export default class DayPlanner extends Plugin {
           this.saveData(this.settings)
         }
 
-        const view = this.app.workspace.activeLeaf.view;
+        const view = app.workspace.getActiveViewOfType(MarkdownView);
         const filePath = view.getState().file;
         const dayPlannerExists = this.notesForDatesQuery.exists(this.settings.notesToDates);
         const activeDayPlannerPath = this.notesForDatesQuery.active(this.settings.notesToDates)?.notePath;
