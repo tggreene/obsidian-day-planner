@@ -5,13 +5,11 @@ import {
     Setting
 } from 'obsidian';
 import {DayPlannerMode} from './settings';
-import MomentDateRegex from './moment-date-regex';
 import type DayPlanner from './main';
 import {ICONS} from './constants';
 import {FileSuggest, FileSuggestMode, FolderSuggest} from './file-suggester'
 
 export class DayPlannerSettingsTab extends PluginSettingTab {
-    momentDateRegex = new MomentDateRegex();
     plugin: DayPlanner;
     error: string;
 
@@ -95,6 +93,33 @@ export class DayPlannerSettingsTab extends PluginSettingTab {
                 containerEl.addClass("day-planner-search");
             })
             .setDesc('Folder where auto-created notes will be saved');
+
+        new Setting(containerEl)
+            .setName('Custom File Prefix')
+            .setDesc('The prefix for your planner note file names')
+            .addText(component =>
+                component
+                    .setValue(this.plugin.settings.fileNamePrefix ?? "Day Planner-")
+                    .onChange((value: string) => {
+                        this.plugin.settings.fileNamePrefix = value
+                        this.plugin.saveData(this.plugin.settings);
+                    }));
+
+        new Setting(containerEl)
+            .setName('File name Date Format')
+            .setDesc('The date format for your planner note file names')
+            .addDropdown(dropdown => {
+                dropdown.addOption('MM-DD-YYYY', 'MM-DD-YYYY')
+                dropdown.addOption('DD-MM-YYYY', 'DD-MM-YYYY')
+                dropdown.addOption('YYYYMMDD', 'YYYYMMDD')
+                return dropdown
+                    .setValue(this.plugin.settings.fileNameDateFormat ?? 'YYYMMDD')
+                    .onChange((value: string) => {
+                        this.plugin.settings.fileNameDateFormat = value;
+                        this.plugin.saveData(this.plugin.settings);
+                    })
+            });
+
 
         new Setting(containerEl)
             .setName('Complete past planner items')

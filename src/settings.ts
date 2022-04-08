@@ -1,6 +1,8 @@
 export class DayPlannerSettings {
     customFolder = 'Day Planners';
     noteTemplate = '';
+    fileNamePrefix = 'Day Planner-';
+    fileNameDateFormat = 'YYYYMMDD';
     mode: DayPlannerMode = DayPlannerMode.File;
     mermaid = false;
     notesToDates: NoteForDate[] = [];

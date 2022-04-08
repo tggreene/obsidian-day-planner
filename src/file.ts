@@ -1,18 +1,16 @@
-import { Notice, Vault, normalizePath } from 'obsidian';
-import { DAY_PLANNER_DEFAULT_CONTENT, DAY_PLANNER_FILENAME } from './constants';
-import MomentDateRegex from './moment-date-regex';
-import { DayPlannerSettings, DayPlannerMode, NoteForDateQuery } from './settings';
+import {Notice, Vault, normalizePath} from 'obsidian';
+import {DAY_PLANNER_DEFAULT_CONTENT} from './constants';
+import moment from 'moment';
+import {DayPlannerSettings, DayPlannerMode, NoteForDateQuery} from './settings';
 
 export default class DayPlannerFile {
     vault: Vault;
     settings: DayPlannerSettings;
-    momentDateRegex: MomentDateRegex;
     noteForDateQuery: NoteForDateQuery;
 
-    constructor(vault: Vault, settings: DayPlannerSettings){
+    constructor(vault: Vault, settings: DayPlannerSettings) {
         this.vault = vault;
         this.settings = settings;
-        this.momentDateRegex = new MomentDateRegex();
         this.noteForDateQuery = new NoteForDateQuery();
     }
 
@@ -22,7 +20,7 @@ export default class DayPlannerFile {
     }
 
     todayPlannerFilePath(): string {
-        if(this.settings.mode === DayPlannerMode.Command){
+        if (this.settings.mode === DayPlannerMode.Command) {
             return this.noteForDateQuery.active(this.settings.notesToDates).notePath;
         }
         const fileName = this.todayPlannerFileName();
@@ -30,11 +28,13 @@ export default class DayPlannerFile {
     }
 
     todayPlannerFileName(): string {
-        return this.momentDateRegex.replace(DAY_PLANNER_FILENAME);
+        const fileDate = moment().format(this.settings.fileNameDateFormat);
+        const fileName = `${this.settings.fileNamePrefix.trim() ?? ''}${fileDate}.md`
+        return fileName;
     }
 
     async todayPlannerContents(): Promise<string> {
-        const { metadataCache, vault } = window.app;
+        const {metadataCache, vault} = window.app;
         const templatePath = normalizePath(this.settings.noteTemplate);
 
         if (templatePath === "/") {
@@ -60,7 +60,7 @@ export default class DayPlannerFile {
 
     async prepareFile() {
         try {
-            if(this.settings.mode === DayPlannerMode.File){
+            if (this.settings.mode === DayPlannerMode.File) {
                 await this.createFolderIfNotExists(this.settings.customFolder);
                 await this.createFileIfNotExists(this.todayPlannerFilePath());
             }
@@ -69,12 +69,12 @@ export default class DayPlannerFile {
         }
     }
 
-    async createFolderIfNotExists(path: string){
+    async createFolderIfNotExists(path: string) {
         try {
             const normalizedPath = normalizePath(path);
             const folderExists = await this.vault.adapter.exists(normalizedPath, false)
-            if(!folderExists) {
-              await this.vault.createFolder(normalizedPath);
+            if (!folderExists) {
+                await this.vault.createFolder(normalizedPath);
             }
         } catch (error) {
             console.log(error)
@@ -93,7 +93,7 @@ export default class DayPlannerFile {
         }
     }
 
-    async getFileContents(fileName: string){
+    async getFileContents(fileName: string) {
         this.prepareFile();
         try {
             return await this.vault.adapter.read(fileName);
@@ -102,7 +102,7 @@ export default class DayPlannerFile {
         }
     }
 
-    async updateFile(fileName: string, fileContents: string){
+    async updateFile(fileName: string, fileContents: string) {
         this.prepareFile();
         try {
             return await this.vault.adapter.write(normalizePath(fileName), fileContents);
