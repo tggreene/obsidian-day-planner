@@ -1,6 +1,6 @@
 {
   "id": "obsidian-day-planner-with-templates",
-  "name": "Template Enabled Day Planner",
+  "name": "Day Planner",
   "version": "1.0.0",
   "description": "A plugin to help you plan your day",
   "isDesktopOnly": false,
