@@ -15,8 +15,9 @@ export default class DayPlannerFile {
     }
 
 
-    hasTodayNote(): boolean {
-        return this.settings.mode === DayPlannerMode.File || this.noteForDateQuery.exists(this.settings.notesToDates);
+    async hasTodayNote(): Promise<boolean> {
+        return this.settings.mode === DayPlannerMode.File ||
+               this.vault.adapter.exists(this.noteForDateQuery.active(this.settings.notesToDates).notePath);
     }
 
     todayPlannerFilePath(): string {
